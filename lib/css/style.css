@@ -1,0 +1,19 @@
+a {
+    cursor: pointer;
+}
+
+.body-content {
+    margin-top: 55px;
+}
+
+.center-nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.icono {
+    font-size:10px; 
+    width: 75px;
+}

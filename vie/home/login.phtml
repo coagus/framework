@@ -1,0 +1,59 @@
+<div class="container">
+	<div class="row">
+		<div class="col-md-4 col-sm-3 col-xs-1"></div>
+		<div class="col-md-4 col-sm-6 col-xs-10" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+			<?php if ($this->getError() != '') { ?>
+			<div class="alert alert-danger alert-dismissible fade show" role="alert"> 
+			    <strong>Error!</strong> <?php echo $this->getError();?>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"> 
+				    <span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<?php } ?>
+			<div class="card border-dark">
+				<h5 class="card-header text-white" style="background-color: #343a40!important;">
+                    <i class="bi bi-shield-shaded"></i>
+                    Login
+                </h5>
+				<div class="card-body">
+					<form id="form" action="javascript:void(0);" enctype="multipart/form-data">
+						<div class="input-group input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="bi bi-person-check-fill"></i>
+                            </span>
+                          </div>
+							<input type="text" class="form-control" name="User" placeholder="User" />
+						</div> 
+						<br>
+						<div class="input-group input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="bi bi-key-fill"></i>
+                            </span>
+                          </div>
+							<input type="password" class="form-control" name="Password" placeholder="Password"/>
+						</div>
+						<div class="text-end mt-3">
+						    <button type="submit" class="btn btn-success btn-block text-end">
+    						    <strong>Ingresar</strong> 
+    						    <i class="bi bi-box-arrow-in-right"></i>
+    						</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4 col-sm-3 col-xs-1"></div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function(){
+	        $.getScript("lib/vcl/nav.js",function() {
+	            $("#form").submit(function(event) {
+	                show("home","setLogin","body",$(this).serialize());
+	            });
+	        });
+	    });
+</script>

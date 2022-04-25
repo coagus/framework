@@ -1,0 +1,123 @@
+<div class="text-center align-middle">
+  <h5>
+    <button class="btn btn-link float-right btn-sm" id="nuevo">
+      <i class='bi bi-plus-circle-fill' style='font-size:17px'></i>
+    </button>
+    <button class="btn btn-link float-left btn-sm" id="regresar">
+      <i class="bi bi-chevron-double-left" style='font-size:17px'></i>
+    </button>
+    <?php echo $this->table->getTitleList(); ?>
+  </h5>
+</div>
+
+<hr class="mt-1 mb-2">
+
+<div class="input-group">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="basic-addon1">
+      <i class="bi bi-search" style='font-size:15px'></i>
+    </span>
+  </div>
+  <input type="text" class="form-control" placeholder="Buscar..." aria-label="Username" aria-describedby="basic-addon1" id="search">
+</div>
+
+<table class="table table-hover table-sm">
+  <thead>
+    <tr>
+      <?php
+      foreach ($this->table as $key => $value) {
+        $show = $this->table->showField($key);
+        $money = $this->table->isMoney($key);
+        $class = '';
+        if (!$show || $money) {
+          $class .= 'class="';
+          $class .= $show ? '' : 'd-none d-lg-table-cell ';
+          $class .= $money ? 'text-center ' : '';
+          $class .= '"';
+        }
+        
+        echo $this->table->hideField($key) ? "" : "<th $class>" . strtr($key, "_", " ") . "</th>";
+      }
+      ?>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="list">
+    <?php
+    foreach ($this->table->getList() as $r) :
+      if ($this->table->showRegNoSuper($this->table->getTitleSingle(), $r)) {
+    ?>
+    <tr>
+      <?php
+      foreach ($r as $key => $value) {
+        if (!$this->table->hideField($key)) {
+          $show = $this->table->showField($key);
+          $money = $this->table->isMoney($key);
+          $class = 'class="';
+          if (!$show || $money) {            
+            $class .= $show ? '' : 'd-none d-lg-table-cell ';
+            $class .= $money ? 'text-right ' : 'text-break ';
+            
+          }
+          $class .= '"';
+          $value = $this->table->hasCatalogo($key) ? $this->table->getValCatalogo($key, $value) : $value;
+          $value = $money ? 'Q.'.number_format($value, 2, '.', '') : $value;
+          echo "<td $class>$value</td>";
+        }
+      }
+      ?>
+      <td>
+        <button class="btn btn-link btn-sm float-right" id="view<?php echo $r->Id; ?>" data-toggle="modal" data-target="#viewModal">
+          <i class='bi bi-eye-fill' style='font-size:17px'></i>
+        </button>
+      </td>
+    </tr>
+    <?php
+      }
+    endforeach;
+    ?>
+  </tbody>
+</table>
+
+<!-- MODAL PARA VER REGISTRO -->
+
+<div class="modal" tabindex="-1" id="viewModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><?php echo $this->table->getTitleSingle(); ?></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="ver"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $.getScript("lib/vcl/nav.js", function() {
+      $("#regresar").click(function() {
+        show("home", "index", "body", "");
+      });
+
+      $("#nuevo").click(function() {
+        show("<?php echo $this->controller; ?>", "edit", "#view", "");
+      });
+
+      <?php foreach ($this->table->getList() as $r) : ?>
+        $("#view<?php echo $r->Id; ?>").click(function() {
+          show("<?php echo $this->controller; ?>", "viewReg", "#ver", "IdView=<?php echo $r->Id; ?>");
+        });
+      <?php endforeach; ?>
+
+      $("#search").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#list tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+  });
+</script>

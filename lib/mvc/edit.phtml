@@ -1,0 +1,155 @@
+<?php
+$table = $this->table;
+if (isset($_REQUEST['IdEdit']))
+    $this->table = $this->table->getById($_REQUEST['IdEdit']);
+$icon = $this->table->Id == "" ? "<i class='fas fa-plus' style='font-size:17px'></i> " : "<i class='fas fa-edit' style='font-size:17px'></i> ";
+?>
+<div class="text-center align-middle">
+    <h5>
+        <button class="btn btn-link float-left btn-sm" id="regresar">
+            <i class="bi bi-chevron-double-left" style='font-size:17px'></i>
+        </button>
+        <?php echo $icon . " " . $table->getTitleSingle(); ?>
+    </h5>
+</div>
+<hr class="mt-0 mb-0">
+<form id="form" action="javascript:void(0);" enctype="multipart/form-data" class="was-validated">
+    <input name="Id" type="hidden" value="<?php echo $this->table->Id == '' ? '0' : $this->table->Id; ?>" />
+    <?php
+    foreach ($this->table as $key => $value) {
+        if ($key != 'Id') {
+            $req = $table->isNotRequired($key) ? '' : 'required';
+
+            if ($table->hideFieldToEdit($key)) {
+                $value = $this->table->Id == '' ? $table->getCustomValue($key, $value) : $value;
+    ?>
+                <input name="<?php echo $key; ?>" type="hidden" value="<?php echo $value; ?>" />
+            <?php
+            } else if ($table->isTextArea($key)) {
+            ?>
+                <div class="form-group row mt-1 mb-1">
+                    <label for="input<?php echo $key; ?>" class="col-sm-2 col-form-label"><?php echo strtr($key, "_", " "); ?></label>
+                    <div class="col-sm-6">
+                        <textarea class="form-control" name="<?php echo $key ?>" rows="3" id="input<?php echo $key; ?>" <?php echo $req; ?>><?php echo $value ?></textarea>
+                    </div>
+                </div>
+            <?php
+            } else if ($table->hasCatalogo($key)) {
+            ?>
+                <div class="form-group row mt-1 mb-1">
+                    <label for="input<?php echo $key; ?>" class="col-sm-2 col-form-label"><?php echo strtr($key, "_", " "); ?></label>
+                    <div class="col-sm-6">
+                        <?php
+                        echo "    <select id='$key' name='$key' class='form-control'>";
+                        foreach ($table->getCatalogo($key) as list($val, $display)) {
+                            echo "<option value='$val' " . ($val == $value ? "selected" : "") . ">$display</option>";
+                        }
+                        echo "    </select>";
+                        ?>
+                    </div>
+                </div>
+            <?php
+            } else if ($table->isImage($key)) {
+            ?>
+                <div class="form-group row mt-1 mb-1">
+                    <label for="input<?php echo $key; ?>" class="col-sm-2 col-form-label"><?php echo strtr($key, "_", " "); ?></label>
+                    <div class="col-sm-6" id="<?php echo $key; ?>">
+                        <div id="vi-<?php echo $key; ?>">
+                            <input type="hidden" name="<?php echo $key; ?>" value="<?php echo $this->table->Id == '' ? '/img/uploadImg.jpeg' : $value; ?>">
+                            <img src="<?php echo $this->table->Id == '' ? '/img/uploadImg.jpeg' : $value; ?>" class="img-thumbnail" alt="Responsive image">
+                        </div>
+                        <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#imgModal" id="up-<?php echo $key; ?>">
+                            <i class="bi bi-cloud-arrow-up-fill"></i>
+                            Subir imagen
+                        </button>
+                    </div>
+                </div>
+            <?php
+            } else if ($table->isMoney($key)) {
+            ?>
+                <div class="form-group row mt-1 mb-1">
+                    <label for="input<?php echo $key; ?>" class="col-sm-2 col-form-label"><?php echo strtr($key, "_", " "); ?> </label>
+                    <div class="col-sm-6">
+                        <input type="number" step="0.01" placeholder='<?php $table->min($key)?>' name="<?php echo $key; ?>" min="<?php $table->min($key)?>" value="<?php echo $value=='' ? $table->min($key) : number_format($value, 2, '.', ','); ?>" class="form-control money" <?php echo $req; ?>>
+                    </div>
+                </div>
+            <?php
+            } else {
+                $type = 'text';
+
+                if ($this->is_Date($value)) {
+                    $type = 'date';
+                    $value = date('Y-m-d', strtotime($value));
+                }
+            ?>
+                <div class="form-group row mt-1 mb-1">
+                    <label for="input<?php echo $key; ?>" class="col-sm-2 col-form-label"><?php echo strtr($key, "_", " "); ?></label>
+                    <div class="col-sm-6">
+                        <input type="<?php echo $type; ?>" name="<?php echo $key; ?>" value="<?php echo $value; ?>" class="form-control" id="input<?php echo $key; ?>" <?php echo $req; ?>>
+                    </div>
+                </div>
+    <?php
+            } // else hasCatalogo
+        } // if key=Id
+    } ?>
+    <div class="pt-2">
+        <button type="submit" class="btn btn-outline-success">
+            <i class='bi bi-save'></i>
+            Guardar
+        </button>
+        <?php if ($this->table->Id != "") { ?>
+            <button type="button" class="btn btn-outline-danger pl-2" id="delete">
+                <i class="bi bi-trash"></i>
+                Eliminar
+            </button>
+        <?php } ?>
+    </div>
+</form>
+
+<div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="imagen" aria-hidden="true">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cargar imagen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="img"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $.getScript("lib/vcl/nav.js", function() {
+            $("#form").submit(function(event) {
+                show("<?php echo $this->controller; ?>", "edit", "#view", $(this).serialize());
+            });
+            $("#regresar").click(function() {
+                show("<?php echo $this->controller; ?>", "index", "#view", "");
+            });
+            $(".money").change(function() {
+                $(this).val(parseFloat($(this).val()).toFixed(2));
+            });
+            <?php
+            if ($this->table->Id != "") { ?>
+                $("#delete").click(function() {
+                    show("<?php echo $this->controller; ?>", "delete", "#view", "Id=<?php echo $this->table->Id; ?>");
+                });
+                <?php
+            }
+
+            foreach ($this->table as $key => $value) {
+                if ($table->isImage($key)) {
+                ?>
+                    $("#up-<?php echo $key; ?>").click(function() {
+                        show("<?php echo $this->controller; ?>", "formUpLoad", "#img", "key=<?php echo $key; ?>");
+                    });
+            <?php
+                }
+            }
+            ?>
+        });
+    });
+</script>

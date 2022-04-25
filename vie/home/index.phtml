@@ -1,0 +1,41 @@
+<div id="view" class="container-md pb-3 pt-3 rounded-lg">
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand">Distribuidora</a>
+        <button class="btn btn-primary btn-sm float-right" id="logout">
+            Salir
+            <i class='bi bi-box-arrow-right' style='font-size:15px'></i>
+        </button> 
+      </div>
+    </nav>
+    
+    <div align="center">
+        <button type="button" class="btn btn-outline-primary m-1" style="font-size:11px; width: 85px;" id="ventas">
+            <i class="bi bi-card-checklist" style='font-size:40px;'></i>
+            <br> Inventario
+        </button>
+        
+        <button type="button" class="btn btn-outline-primary m-1" style="font-size:11px; width: 85px;" id="compras">
+            <i class="bi bi-cart-plus" style='font-size:40px;'></i>
+            <br> Compras
+        </button>
+        
+        <button type="button" class="btn btn-outline-primary m-1" style="font-size:11px; width: 85px;" id="ventas">
+            <i class="bi bi-graph-up-arrow" style='font-size:40px;'></i>
+            <br> Ventas
+        </button>
+    </div>
+</div>
+
+<script>
+	$(document).ready(function() {
+		$.getScript("lib/vcl/nav.js", function() {
+			$("#logout").click(function() { 
+			    show("home","logout","body",""); 
+			});
+			$("#compras").click(function() { 
+			    show("compras","index","#view",""); 
+			});
+		});
+	});
+</script>

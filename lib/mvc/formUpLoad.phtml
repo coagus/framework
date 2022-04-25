@@ -1,0 +1,36 @@
+<form id="form_img" action="javascript:void(0);" enctype="multipart/form-data">
+    <input name="key" type="hidden" value="<?php echo $this->getKey(); ?>" />
+    <div class="modal-body">
+        <div class="input-group ">
+            <div class="custom-file">
+                <input type="file" name='file_img' class="custom-file-input" id="file_img" lang="es" required>
+                <label class="custom-file-label" for="file_img">Buscar imagen...</label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-outline-success" data-dismiss="modal" id="form_img_btn">
+            <i class='fas fa-upload'></i>
+            Subir
+        </button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $.getScript("lib/vcl/nav.js", function() {
+            $("#form_img_btn").click(function(event) {
+                var form = $('#form_img')[0];
+                var formData = new FormData(form);
+                var file = $("#file_img")[0];
+                formData.append(file.name, file.files[0]);
+                loadCSV("<?php echo $this->controller; ?>", "upLoadImage", "#vi-<?php echo $this->getKey(); ?>", formData);
+            });
+        });
+    });
+    $(".custom-file-input").on("change", function() {
+        var fileName = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+</script>
